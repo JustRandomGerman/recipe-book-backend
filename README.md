@@ -20,8 +20,8 @@ create database <DATABASE_NAME>;
 create user '<USERNAME>'@'localhost' identified by '<PASSWORD>';
 grant all privileges on <DATABASE_NAME>.* to '<USERNAME>'@'localhost';
 ```
-Create the config file for typeorm
+Configuring settings for the database
 ```
-cp ormconfig.json.example ormconfig.json
+cp data-source.ts.example data-source.ts
 ```
-And then set username, password and database in ormconfig.json
+And then set username, password and database in data-source.ts

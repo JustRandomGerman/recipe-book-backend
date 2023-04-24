@@ -25,12 +25,14 @@ export class RecipeController {
     }
 
     async save(request: Request, response: Response, next: NextFunction) {
-        const { firstName, lastName, age } = request.body;
+        const { name, instructions, image, ingredients, tags } = request.body;
 
         const recipe = Object.assign(new Recipe(), {
-            firstName,
-            lastName,
-            age
+            name,
+            instructions,
+            image,
+            ingredients,
+            tags
         });
 
         return this.recipeRepository.save(recipe);
@@ -38,6 +40,7 @@ export class RecipeController {
 
     async update(request: Request, response: Response, next: NextFunction){
         const id = parseInt(request.params.id);
+        const { name, instructions, image, ingredients, tags } = request.body;
         
         let recipe = await this.recipeRepository.findOneBy({ id });
 
@@ -45,8 +48,13 @@ export class RecipeController {
             return "this recipe does not exist"
         }
 
-        //TODO
+        recipe.name = name;
+        recipe.instructions = instructions;
+        recipe.image = image;
+        recipe.ingredients = ingredients;
+        recipe.tags = tags;
 
+        return this.recipeRepository.save(recipe)
     }
 
     async remove(request: Request, response: Response, next: NextFunction) {
@@ -62,5 +70,4 @@ export class RecipeController {
 
         return "recipe has been removed";
     }
-
 }

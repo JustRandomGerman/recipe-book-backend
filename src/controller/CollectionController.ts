@@ -25,12 +25,11 @@ export class CollectionController {
     }
 
     async save(request: Request, response: Response, next: NextFunction) {
-        const { firstName, lastName, age } = request.body;
+        const { name, recipes } = request.body;
 
         const collection = Object.assign(new Collection(), {
-            firstName,
-            lastName,
-            age
+            name,
+            recipes
         });
 
         return this.collectionRepository.save(collection);
@@ -38,6 +37,7 @@ export class CollectionController {
 
     async update(request: Request, response: Response, next: NextFunction){
         const id = parseInt(request.params.id);
+        const { name, recipes } = request.body;
         
         let collection = await this.collectionRepository.findOneBy({ id });
 
@@ -45,8 +45,10 @@ export class CollectionController {
             return "this collection does not exist"
         }
 
-        //TODO
+        collection.name = name;
+        collection.recipes = recipes;
 
+        return this.collectionRepository.save(collection)
     }
 
     async remove(request: Request, response: Response, next: NextFunction) {

@@ -17,14 +17,14 @@ export class Recipe {
     image: string
 
     @OneToMany(() => Ingredient, (ingredient) => ingredient.recipe, {
-        eager: true,
-        cascade: true
+        //eager: true,
+        //cascade: true
     })
     ingredients: Ingredient[]
 
     @OneToMany(() => Tag, (tag) => tag.recipe, {
-        eager: true,
-        cascade: true
+        //eager: true,
+        //cascade: true
     })
     tags: Tag[]
 }

@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.ts",
   "scripts": {
-    "test": "node build/app.js"
+    "test": "ts-node src/app.ts"
   },
   "repository": {
     "type": "git",

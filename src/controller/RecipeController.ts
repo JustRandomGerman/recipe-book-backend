@@ -19,13 +19,16 @@ export class RecipeController {
         });
 
         if (!recipe) {
-            return "this recipe does not exist"
+            response.status(404).json({message: "the specified recipe does not exist"})
         }
         return recipe;
     }
 
     async save(request: Request, response: Response, next: NextFunction) {
         const { name, instructions, image, ingredients, tags } = request.body;
+
+        //TODO validate parameters
+        //response.status(400).json({message: "the request parameters are incorrect"})
 
         const recipe = Object.assign(new Recipe(), {
             name,
@@ -41,11 +44,14 @@ export class RecipeController {
     async update(request: Request, response: Response, next: NextFunction){
         const id = parseInt(request.params.id);
         const { name, instructions, image, ingredients, tags } = request.body;
+
+        //TODO validate parameters
+        //response.status(400).json({message: "the request parameters are incorrect"})
         
         let recipe = await this.recipeRepository.findOneBy({ id });
 
         if (!recipe) {
-            return "this recipe does not exist"
+            response.status(404).json({message: "the specified recipe does not exist"})
         }
 
         recipe.name = name;
@@ -63,11 +69,11 @@ export class RecipeController {
         let recipe = await this.recipeRepository.findOneBy({ id });
 
         if (!recipe) {
-            return "this recipe does not exist"
+            response.status(404).json({message: "the specified recipe does not exist"})
         }
 
         await this.recipeRepository.remove(recipe);
 
-        return "recipe has been removed";
+        response.status(200)
     }
 }

@@ -1,6 +1,8 @@
 import { AppDataSource } from '../data-source'
+import { In } from 'typeorm'
 import { NextFunction, Request, Response } from "express"
 import { Collection } from "../entity/Collection"
+import { Recipe } from '../entity/Recipe'
 
 export class CollectionController {
 
@@ -19,13 +21,18 @@ export class CollectionController {
         });
 
         if (!collection) {
-            return "this collection does not exist"
+            response.status(404).json({message: "test"});
+            return
         }
         return collection;
     }
 
     async save(request: Request, response: Response, next: NextFunction) {
         const { name, recipes } = request.body;
+
+        //TODO validate parameters
+        //response.status(400).json({message: "the request parameters are incorrect"})
+        //return
 
         const collection = Object.assign(new Collection(), {
             name,
@@ -39,14 +46,21 @@ export class CollectionController {
         const id = parseInt(request.params.id);
         const { name, recipes } = request.body;
         
+        //TODO validate parameters
+        //response.status(400).json({message: "the request parameters are incorrect"})
+        //return
+
         let collection = await this.collectionRepository.findOneBy({ id });
 
         if (!collection) {
-            return "this collection does not exist"
+            response.status(404).json({message: "the specified collection does not exist"})
+            return
         }
 
         collection.name = name;
-        collection.recipes = recipes;
+        const recipeRepository = AppDataSource.getRepository(Recipe);
+        const updatedRecipes = await recipeRepository.find({ where: {id: In(recipes) }});
+        collection.recipes = updatedRecipes;
 
         return this.collectionRepository.save(collection)
     }
@@ -54,15 +68,17 @@ export class CollectionController {
     async remove(request: Request, response: Response, next: NextFunction) {
         const id = parseInt(request.params.id);
 
-        let recipe = await this.collectionRepository.findOneBy({ id });
+        let collection = await this.collectionRepository.findOneBy({ id });
 
-        if (!recipe) {
-            return "this collection does not exist"
+        if (!collection) {
+            response.status(404).json({message: "the specified collection does not exist"})
+            return
         }
 
-        await this.collectionRepository.remove(recipe);
+        await this.collectionRepository.remove(collection);
 
-        return "collection has been removed";
+        response.status(200)
+        return
     }
 
 }

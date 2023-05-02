@@ -24,7 +24,8 @@ export class Recipe {
 
     @OneToMany(() => Tag, (tag) => tag.recipe, {
         eager: true,
-        cascade: true
+        cascade: true,
+        onDelete: "CASCADE"
     })
     tags: Tag[]
 }

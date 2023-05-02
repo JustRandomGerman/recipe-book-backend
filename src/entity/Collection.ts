@@ -9,7 +9,9 @@ export class Collection {
     @Column()
     name: string
     
-    @ManyToMany(() => Recipe)
+    @ManyToMany(() => Recipe, {
+        eager: true
+    })
     @JoinTable({
         name: "collection_recipes",
         joinColumn: {

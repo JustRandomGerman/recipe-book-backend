@@ -9,6 +9,8 @@ export class Tag {
     @Column()
     name: string
 
-    @ManyToOne(() => Recipe, (recipe) => recipe.tags)
+    @ManyToOne(() => Recipe, (recipe) => recipe.tags, {
+        onDelete: "CASCADE"
+    })
     recipe: Recipe
 }

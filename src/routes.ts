@@ -22,7 +22,7 @@ export const Routes = [
         action: "save"
     },
     {
-        path: "/recipes",
+        path: "/recipes/:id",
         method: "put",
         controller: RecipeController,
         action: "update"
@@ -52,7 +52,7 @@ export const Routes = [
         action: "save"
     },
     {
-        path: "/collections",
+        path: "/collections/:id",
         method: "put",
         controller: CollectionController,
         action: "update"

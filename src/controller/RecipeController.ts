@@ -70,10 +70,9 @@ export class RecipeController {
 
         if (!recipe) {
             response.status(404).json({message: "the specified recipe does not exist"})
+            return
         }
 
-        await this.recipeRepository.remove(recipe);
-
-        response.status(200)
+        return await this.recipeRepository.remove(recipe);
     }
 }

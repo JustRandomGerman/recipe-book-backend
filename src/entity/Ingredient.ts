@@ -10,7 +10,7 @@ export class Ingredient {
     amount: string
 
     @Column()
-    name: string
+    ingredient_name: string
 
     @ManyToOne(() => Recipe, (recipe) => recipe.ingredients, {
         onDelete: "CASCADE"

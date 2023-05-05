@@ -1,6 +1,7 @@
 import { RecipeController } from './controller/RecipeController';
 import { CollectionController } from './controller/CollectionController';
 import { SearchController } from './controller/SearchController';
+import { TagController } from './controller/TagController';
 
 export const Routes = [
     {
@@ -68,5 +69,11 @@ export const Routes = [
         method: "post",
         controller: SearchController,
         action: "search"
+    },
+    {
+        path: "/tags/available",
+        method: "get",
+        controller: TagController,
+        action: "available"
     }
 ];

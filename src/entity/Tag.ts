@@ -7,7 +7,7 @@ export class Tag {
     id: number
 
     @Column()
-    name: string
+    tag_name: string
 
     @ManyToOne(() => Recipe, (recipe) => recipe.tags, {
         onDelete: "CASCADE"

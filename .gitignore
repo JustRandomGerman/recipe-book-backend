@@ -1,3 +1,5 @@
 node_modules
 build
 src/data-source.ts
+public/images/*
+test-data.json

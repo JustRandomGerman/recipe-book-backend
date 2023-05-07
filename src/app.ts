@@ -3,6 +3,7 @@ import * as bodyParser from "body-parser"
 import { Request, Response } from "express"
 import { AppDataSource } from "./data-source"
 import { Routes } from "./routes"
+import { Recipe } from "./entity/Recipe"
 
 AppDataSource.initialize().then(async () => {
 
@@ -22,6 +23,8 @@ AppDataSource.initialize().then(async () => {
             }
         })
     })
+
+    app.use(express.static("public"))
 
     // setup express app here
     // ...

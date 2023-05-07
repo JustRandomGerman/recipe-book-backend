@@ -5,14 +5,18 @@ import { Recipe } from "../entity/Recipe"
 export class RecipeController {
 
     private recipeRepository = AppDataSource.getRepository(Recipe)
+    private baseImagePath = "http://localhost:3000/images/"
 
     async all(request: Request, response: Response, next: NextFunction) {
-        return this.recipeRepository.find();
+        const recipes = await this.recipeRepository.find();
+
+        recipes.map((recipe: Recipe) => recipe.image = this.baseImagePath + recipe.image)
+
+        return recipes;
     }
 
     async one(request: Request, response: Response, next: NextFunction) {
         const id = parseInt(request.params.id);
-
 
         const recipe = await this.recipeRepository.findOne({
             where: { id }
@@ -21,6 +25,9 @@ export class RecipeController {
         if (!recipe) {
             response.status(404).json({message: "the specified recipe does not exist"})
         }
+
+        recipe.image = this.baseImagePath + recipe.image;
+
         return recipe;
     }
 
@@ -52,6 +59,7 @@ export class RecipeController {
 
         if (!recipe) {
             response.status(404).json({message: "the specified recipe does not exist"})
+            return
         }
 
         recipe.name = name;

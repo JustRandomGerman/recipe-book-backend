@@ -29,6 +29,12 @@ export const Routes = [
         action: "update"
     },
     {
+        path: "/recipes/upload",
+        method: "post",
+        controller: RecipeController,
+        action: "upload"
+    },
+    {
         path: "/recipes/:id",
         method: "delete",
         controller: RecipeController,

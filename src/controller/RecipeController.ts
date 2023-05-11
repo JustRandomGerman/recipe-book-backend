@@ -22,12 +22,18 @@ export class RecipeController {
     async one(request: Request, response: Response, next: NextFunction) {
         const id = parseInt(request.params.id);
 
+        if(isNaN(id)){
+            response.status(400).json({message: "the id must be a number"})
+            return
+        }
+
         const recipe = await this.recipeRepository.findOne({
             where: { id }
         });
 
         if (!recipe) {
             response.status(404).json({message: "the specified recipe does not exist"})
+            return
         }
 
         recipe.image = this.baseImagePath + recipe.image;
@@ -36,7 +42,7 @@ export class RecipeController {
     }
 
     async save(request: Request, response: Response, next: NextFunction) {
-        const { name, instructions, image, ingredients, tags } = request.body;
+        const { name, instructions, image, ingredients, tags, keywords } = request.body;
 
         //TODO validate parameters
         //response.status(400).json({message: "the request parameters are incorrect"})
@@ -46,7 +52,8 @@ export class RecipeController {
             instructions,
             image,
             ingredients,
-            tags
+            tags,
+            keywords
         });
 
         return this.recipeRepository.save(recipe);
@@ -58,32 +65,36 @@ export class RecipeController {
                 response.status(500).json({ message: "multiple images not supported" })
                 return
             }
-            else{
-                const imageFile = request.files.image;
-                const imageFileName = `${(imageFile as UploadedFile).name}`;
-            
-                // Move the image file to the "public/images" directory
-                (imageFile as UploadedFile).mv(`public/temp/${imageFileName}`, (error) => {
-                    if (error) {
-                        console.error(error);
-                        response.status(500).json({ message: "failed to upload image file" });
-                        return;
-                    }
+            const imageFile = request.files.image;
+            const imageFileName = `${(imageFile as UploadedFile).name}`;
+        
+            // Move the image file to the "public/images" directory
+            (imageFile as UploadedFile).mv(`public/temp/${imageFileName}`, (error) => {
+                if (error) {
+                    console.error(error);
+                    response.status(500).json({ message: "failed to upload image file" });
+                    return;
+                }
 
-                    next()
-                });
-                response.status(200).json({image: this.tempImagePath + imageFileName})
-                return;
-            }
+                next()
+            });
+            response.status(200).json({image: this.tempImagePath + imageFileName})
+            return;
         }
         else{
-            response.status(400).json({message: "No image provided"})
+            response.status(400).json({message: "No image provided"});
+            return;
         }
     }
 
     async update(request: Request, response: Response, next: NextFunction){
         const id = parseInt(request.params.id);
-        const { name, instructions, image, ingredients, tags } = request.body;
+        const { name, instructions, image, ingredients, tags, keywords } = request.body;
+
+        if(isNaN(id)){
+            response.status(400).json({message: "the id must be a number"})
+            return
+        }
 
         //TODO validate parameters
         //response.status(400).json({message: "the request parameters are incorrect"})
@@ -99,12 +110,12 @@ export class RecipeController {
         recipe.instructions = instructions;
         recipe.ingredients = ingredients;
         recipe.tags = tags;
+        recipe.keywords = keywords;
 
         if(image.startsWith(this.baseImagePath)){
             //do nothing, because image hasn't changed
         }
         else if(image.startsWith(this.tempImagePath)){
-            //TODO move file and change database entry
             console.log("temp image")
             const imageName = image.replace(this.tempImagePath, "")
             const extension = this.path.extname(imageName)
@@ -126,6 +137,11 @@ export class RecipeController {
 
     async remove(request: Request, response: Response, next: NextFunction) {
         const id = parseInt(request.params.id);
+
+        if(isNaN(id)){
+            response.status(400).json({message: "the id must be a number"})
+            return
+        }
 
         let recipe = await this.recipeRepository.findOneBy({ id });
 

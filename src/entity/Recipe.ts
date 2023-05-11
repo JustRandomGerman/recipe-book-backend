@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm"
 import { Ingredient } from "./Ingredient"
 import { Tag } from "./Tag"
+import { Keyword } from "./Keyword"
 
 @Entity()
 export class Recipe {
@@ -28,4 +29,11 @@ export class Recipe {
         onDelete: "CASCADE"
     })
     tags: Tag[]
+
+    @OneToMany(() => Keyword, (keyword) => keyword.recipe, {
+        eager: true,
+        cascade: true,
+        onDelete: "CASCADE"
+    })
+    keywords: Keyword[]
 }

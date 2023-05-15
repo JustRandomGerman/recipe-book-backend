@@ -49,7 +49,7 @@ export class RecipeController {
         //TODO validate parameters
         //response.status(400).json({message: "the request parameters are incorrect"})
 
-        const recipe = Object.assign(new Recipe(), {
+        const recipeToSave = Object.assign(new Recipe(), {
             name,
             instructions,
             image,
@@ -58,7 +58,28 @@ export class RecipeController {
             keywords
         });
 
-        return this.recipeRepository.save(recipe);
+        const recipe = await this.recipeRepository.save(recipeToSave);
+
+        if(image.startsWith(this.baseImagePath)){
+            //do nothing, because image hasn't changed
+        }
+        else if(image.startsWith(this.tempImagePath)){
+            //move the image from temp to images directory, rename it and change the image name in database
+            const imageName = image.replace(this.tempImagePath, "")
+            const extension = this.path.extname(imageName)
+            const newImageName = `${recipe.id}-${name}${extension}`;
+            this.fs.rename(`public/temp/${imageName}`, `public/images/${newImageName}`, function(err) {
+                if (err) throw err;
+            });
+            recipe.image = newImageName;
+        }
+        else{
+            //The image has to be on the server before updating the image property of the recipe. That means the upload function has to be called before changing the image
+            response.status(400).json({message: "no valid image URL given. You have to upload the image and use the URL from the response"})
+            return
+        }
+
+        return await this.recipeRepository.save(recipe);
     }
 
     async upload(request: Request, response: Response, next: NextFunction){

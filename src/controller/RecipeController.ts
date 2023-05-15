@@ -14,6 +14,7 @@ export class RecipeController {
     async all(request: Request, response: Response, next: NextFunction) {
         const recipes = await this.recipeRepository.find();
 
+        //complete the link to the image
         recipes.map((recipe: Recipe) => recipe.image = this.baseImagePath + recipe.image)
 
         return recipes;
@@ -36,6 +37,7 @@ export class RecipeController {
             return
         }
 
+        //complete the link to the image
         recipe.image = this.baseImagePath + recipe.image;
 
         return recipe;
@@ -68,7 +70,7 @@ export class RecipeController {
             const imageFile = request.files.image;
             const imageFileName = `${(imageFile as UploadedFile).name}`;
         
-            // Move the image file to the "public/images" directory
+            // Move the image file to the "public/temp" directory
             (imageFile as UploadedFile).mv(`public/temp/${imageFileName}`, (error) => {
                 if (error) {
                     console.error(error);
@@ -116,7 +118,7 @@ export class RecipeController {
             //do nothing, because image hasn't changed
         }
         else if(image.startsWith(this.tempImagePath)){
-            console.log("temp image")
+            //move the image from temp to images directory, rename it and change the image name in database
             const imageName = image.replace(this.tempImagePath, "")
             const extension = this.path.extname(imageName)
             const newImageName = `${id}-${name}${extension}`;
@@ -127,7 +129,6 @@ export class RecipeController {
         }
         else{
             //The image has to be on the server before updating the image property of the recipe. That means the upload function has to be called before changing the image
-            console.log("not a vaild image path")
             response.status(400).json({message: "no valid image URL given. You have to upload the image and use the URL from the response"})
             return
         }

@@ -1,6 +1,7 @@
 import { AppDataSource } from '../data-source'
 import { NextFunction, Request, Response } from "express"
 import { Recipe } from "../entity/Recipe"
+import { ImagePath } from '../entity/ImagePath'
 import { UploadedFile } from 'express-fileupload'
 import * as Joi from 'joi';
 
@@ -16,7 +17,9 @@ export class RecipeController {
         id: Joi.number(),
         name: Joi.string().required(),
         instructions: Joi.string().required(),
-        image: Joi.string().required(),
+        image_paths: Joi.array().items({
+            path: Joi.string().required()
+        }).required(),
         ingredients: Joi.array().items({
             id: Joi.number(),
             amount: Joi.string().allow('').required(),
@@ -36,7 +39,9 @@ export class RecipeController {
         const recipes = await this.recipeRepository.find();
 
         //complete the link to the image
-        recipes.map((recipe: Recipe) => recipe.image = this.baseImagePath + recipe.image)
+        recipes.map((recipe: Recipe) => {
+            recipe.image_paths.map((imagePath : ImagePath) => imagePath.path = this.baseImagePath + imagePath.path);
+        });
 
         return recipes;
     }
@@ -45,8 +50,8 @@ export class RecipeController {
         const id = parseInt(request.params.id);
 
         if(isNaN(id)){
-            response.status(400).json({message: "the id must be a number"})
-            return
+            response.status(400).json({message: "the id must be a number"});
+            return;
         }
 
         const recipe = await this.recipeRepository.findOne({
@@ -54,12 +59,12 @@ export class RecipeController {
         });
 
         if (!recipe) {
-            response.status(404).json({message: "the specified recipe does not exist"})
-            return
+            response.status(404).json({message: "the specified recipe does not exist"});
+            return;
         }
 
         //complete the link to the image
-        recipe.image = this.baseImagePath + recipe.image;
+        recipe.image_paths.map((imagePath : ImagePath) => imagePath.path = this.baseImagePath + imagePath.path);
 
         return recipe;
     }
@@ -67,8 +72,8 @@ export class RecipeController {
     async upload(request: Request, response: Response, next: NextFunction){
         if (request.files && request.files.image) {
             if(Array.isArray(request.files)){
-                response.status(500).json({ message: "multiple images not supported" })
-                return
+                response.status(500).json({ message: "multiple images not supported" });
+                return;
             }
             const imageFile = request.files.image;
             const imageFileName = `${(imageFile as UploadedFile).name}`;
@@ -81,9 +86,9 @@ export class RecipeController {
                     return;
                 }
 
-                next()
+                next();
             });
-            response.status(200).json({image: this.tempImagePath + imageFileName})
+            response.status(200).json({image: this.tempImagePath + imageFileName});
             return;
         }
         else{
@@ -96,16 +101,16 @@ export class RecipeController {
         //validate parameters
         const { error } = this.recipeSchema.validate(request.body);
         if (error) {
-            response.status(400).json({ message: error });
+            response.status(400).json({ message: error.details });
             return;
         }
 
-        const { name, instructions, image, ingredients, tags, keywords } = request.body;
+        const { name, instructions, image_paths, ingredients, tags, keywords } = request.body;
 
         const recipeToSave = Object.assign(new Recipe(), {
             name,
             instructions,
-            image,
+            image_paths,
             ingredients,
             tags,
             keywords
@@ -113,49 +118,62 @@ export class RecipeController {
 
         const recipe = await this.recipeRepository.save(recipeToSave);
 
-        if(image.startsWith(this.baseImagePath)){
-            //do nothing, because image hasn't changed
-        }
-        else if(image.startsWith(this.tempImagePath)){
-            //move the image from temp to images directory, rename it and change the image name in database
-            const imageName = image.replace(this.tempImagePath, "")
-            const extension = this.path.extname(imageName)
-            const newImageName = `${recipe.id}-${name}${extension}`;
-            this.fs.rename(`public/temp/${imageName}`, `public/images/${newImageName}`, function(err) {
-                if (err) throw err;
-            });
-            recipe.image = newImageName;
-        }
-        else{
-            //The image has to be on the server before updating the image property of the recipe. That means the upload function has to be called before changing the image
-            response.status(400).json({message: "no valid image URL given. You have to upload the image and use the URL from the response"})
-            return
-        }
+        let recipe_image_paths : ImagePath[] = [];
+        image_paths.map((image_path, index) => {
+            if(image_path.path.startsWith(this.baseImagePath)){
+                //do nothing, because image hasn't changed
+            }
+            else if(image_path.path.startsWith(this.tempImagePath)){
+                //move the image from temp to images directory, rename it and change the image name in database
+                const imageName = image_path.path.replace(this.tempImagePath, "");
+                const extension = this.path.extname(imageName);
+                const newImageName = `${recipe.id}-${name}-${index}${extension}`;
+                this.fs.rename(`public/temp/${imageName}`, `public/images/${newImageName}`, function(err) {
+                    if (err) throw err;
+                });
+                recipe_image_paths.push(Object.assign(new ImagePath(), {
+                    path: newImageName
+                }))
+            }
+            else{
+                //The image has to be on the server before updating the image property of the recipe. That means the upload function has to be called before changing the image
+                response.status(400).json({message: "no valid image URL given. You have to upload the image and use the URL from the response"});
+                return;
+            }
+        })
+        recipe.image_paths = recipe_image_paths;
 
-        return await this.recipeRepository.save(recipe);
+        //save the recipe in the database
+        const newRecipe = await this.recipeRepository.save(recipe);
+        
+        //complete the link to the image
+        recipe.image_paths.map((imagePath : ImagePath) => imagePath.path = this.baseImagePath + imagePath.path);
+
+        response.status(200).json(newRecipe);
+        return;
     }
 
     async update(request: Request, response: Response, next: NextFunction){
         //validate parameters
         const { error } = this.recipeSchema.validate(request.body);
         if (error) {
-            response.status(400).json({ message: error });
+            response.status(400).json({ message: error.details });
             return;
         }
         
         const id = parseInt(request.params.id);
-        const { name, instructions, image, ingredients, tags, keywords } = request.body;
+        const { name, instructions, image_paths, ingredients, tags, keywords } = request.body;
 
         if(isNaN(id)){
-            response.status(400).json({message: "the id must be a number"})
-            return
+            response.status(400).json({message: "the id must be a number"});
+            return;
         }
         
         let recipe = await this.recipeRepository.findOneBy({ id });
 
         if (!recipe) {
-            response.status(404).json({message: "the specified recipe does not exist"})
-            return
+            response.status(404).json({message: "the specified recipe does not exist"});
+            return;
         }
 
         recipe.name = name;
@@ -164,43 +182,77 @@ export class RecipeController {
         recipe.tags = tags;
         recipe.keywords = keywords;
 
-        if(image.startsWith(this.baseImagePath)){
-            //do nothing, because image hasn't changed
-        }
-        else if(image.startsWith(this.tempImagePath)){
-            //move the image from temp to images directory, rename it and change the image name in database
-            const imageName = image.replace(this.tempImagePath, "")
-            const extension = this.path.extname(imageName)
-            const newImageName = `${id}-${name}${extension}`;
-            this.fs.rename(`public/temp/${imageName}`, `public/images/${newImageName}`, function(err) {
-                if (err) throw err;
+        //delete old images of the recipe as they don't necessarily get overwritten when they have different file endings
+        /*recipe.image_paths.map((image_path) => {
+            const complete_path = `public/images/${image_path.path}`;
+            this.fs.unlink(complete_path, (error) => {
+                console.error(error);
             });
-            recipe.image = newImageName;
-        }
-        else{
-            //The image has to be on the server before updating the image property of the recipe. That means the upload function has to be called before changing the image
-            response.status(400).json({message: "no valid image URL given. You have to upload the image and use the URL from the response"})
-            return
-        }
+        })*/
 
-        return this.recipeRepository.save(recipe)
+        let recipe_image_paths : ImagePath[] = [];
+        image_paths.map((image_path, index) => {
+            if(image_path.path.startsWith(this.baseImagePath)){
+                const imageName = image_path.path.replace(this.baseImagePath, "");
+                recipe_image_paths.push(Object.assign(new ImagePath(), {
+                    path: imageName
+                }));
+            }
+            else if(image_path.path.startsWith(this.tempImagePath)){
+                //move the image from temp to images directory, rename it and change the image name in database
+                const imageName = image_path.path.replace(this.tempImagePath, "");
+                const extension = this.path.extname(imageName);
+                const newImageName = `${recipe.id}-${name}-${index}${extension}`;
+                this.fs.rename(`public/temp/${imageName}`, `public/images/${newImageName}`, function(err) {
+                    if (err) throw err;
+                });
+                recipe_image_paths.push(Object.assign(new ImagePath(), {
+                    path: newImageName
+                }));
+            }
+            else{
+                //The image has to be on the server before updating the image property of the recipe. That means the upload function has to be called before changing the image
+                response.status(400).json({message: "no valid image URL given. You have to upload the image and use the URL from the response"});
+                return;
+            }
+        })
+        recipe.image_paths = recipe_image_paths;
+
+        //save the recipe in the database
+        const newRecipe = await this.recipeRepository.save(recipe);
+        
+        //complete the link to the image
+        recipe.image_paths.map((imagePath : ImagePath) => imagePath.path = this.baseImagePath + imagePath.path);
+
+        response.status(200).json(newRecipe);
+        return;
     }
 
     async remove(request: Request, response: Response, next: NextFunction) {
         const id = parseInt(request.params.id);
 
         if(isNaN(id)){
-            response.status(400).json({message: "the id must be a number"})
-            return
+            response.status(400).json({message: "the id must be a number"});
+            return;
         }
 
         let recipe = await this.recipeRepository.findOneBy({ id });
 
         if (!recipe) {
-            response.status(404).json({message: "the specified recipe does not exist"})
-            return
+            response.status(404).json({message: "the specified recipe does not exist"});
+            return;
         }
 
-        return await this.recipeRepository.remove(recipe);
+        //delete images associated with recipe
+        recipe.image_paths.map((image_path) => {
+            const complete_path = `public/images/${image_path.path}`;
+            this.fs.unlink(complete_path, (error) => {
+                console.error(error);
+            });
+        })
+
+        await this.recipeRepository.remove(recipe);
+        response.status(200);
+        return;
     }
 }

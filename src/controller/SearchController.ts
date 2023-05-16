@@ -1,6 +1,7 @@
-import { AppDataSource } from '../data-source'
-import { NextFunction, Request, Response } from "express"
-import { Recipe } from '../entity/Recipe'
+import { AppDataSource } from '../data-source';
+import { NextFunction, Request, Response } from "express";
+import { Recipe } from '../entity/Recipe';
+import { ImagePath } from '../entity/ImagePath';
 
 export class SearchController {
 
@@ -20,7 +21,7 @@ export class SearchController {
             return this.searchIngredient(query, tags);
         }
         else{
-            response.status(400).json({message: `${mode} is not a supported search mode`})
+            response.status(400).json({message: `${mode} is not a supported search mode`});
         }
     }
 
@@ -32,7 +33,9 @@ export class SearchController {
             /*.orWhere("recipe.keywords)*/
             .getMany();
         
-        recipes.map((recipe: Recipe) => recipe.image = this.baseImagePath + recipe.image)
+            recipes.map((recipe: Recipe) => {
+                recipe.image_paths.map((imagePath : ImagePath) => imagePath.path = this.baseImagePath + imagePath.path);
+            });
         return recipes;
     }
 

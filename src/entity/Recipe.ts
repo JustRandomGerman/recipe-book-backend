@@ -1,7 +1,8 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm"
-import { Ingredient } from "./Ingredient"
-import { Tag } from "./Tag"
-import { Keyword } from "./Keyword"
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Ingredient } from "./Ingredient";
+import { Tag } from "./Tag";
+import { Keyword } from "./Keyword";
+import { ImagePath } from "./ImagePath";
 
 @Entity()
 export class Recipe {
@@ -14,8 +15,11 @@ export class Recipe {
     @Column("text")
     instructions: string
 
-    @Column()
-    image: string
+    @OneToMany(() => ImagePath, (imagePath) => imagePath.recipe, {
+        eager: true,
+        cascade: true
+    })
+    image_paths: ImagePath[]
 
     @OneToMany(() => Ingredient, (ingredient) => ingredient.recipe, {
         eager: true,

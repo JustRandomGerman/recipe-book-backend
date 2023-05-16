@@ -15,8 +15,8 @@ export class TagController {
             {tag_name: "italian"},
             {tag_name: "german"}
         ]
-        response.status(200).json(availableTags)
-        return
+        response.status(200).json(availableTags);
+        return;
     }
 
 }

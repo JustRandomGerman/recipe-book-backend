@@ -1,12 +1,12 @@
-import { AppDataSource } from '../data-source'
-import { In } from 'typeorm'
-import { NextFunction, Request, Response } from "express"
-import { Collection } from "../entity/Collection"
-import { Recipe } from '../entity/Recipe'
+import { AppDataSource } from '../data-source';
+import { In } from 'typeorm';
+import { NextFunction, Request, Response } from "express";
+import { Collection } from "../entity/Collection";
+import { Recipe } from '../entity/Recipe';
 
 export class CollectionController {
 
-    private collectionRepository = AppDataSource.getRepository(Collection)
+    private collectionRepository = AppDataSource.getRepository(Collection);
 
     async all(request: Request, response: Response, next: NextFunction) {
         return this.collectionRepository.find();
@@ -22,7 +22,7 @@ export class CollectionController {
 
         if (!collection) {
             response.status(404).json({message: "test"});
-            return
+            return;
         }
         return collection;
     }
@@ -53,8 +53,8 @@ export class CollectionController {
         let collection = await this.collectionRepository.findOneBy({ id });
 
         if (!collection) {
-            response.status(404).json({message: "the specified collection does not exist"})
-            return
+            response.status(404).json({message: "the specified collection does not exist"});
+            return;
         }
 
         collection.name = name;
@@ -62,7 +62,7 @@ export class CollectionController {
         const updatedRecipes = await recipeRepository.find({ where: {id: In(recipes) }});
         collection.recipes = updatedRecipes;
 
-        return this.collectionRepository.save(collection)
+        return this.collectionRepository.save(collection);
     }
 
     async remove(request: Request, response: Response, next: NextFunction) {
@@ -71,14 +71,14 @@ export class CollectionController {
         let collection = await this.collectionRepository.findOneBy({ id });
 
         if (!collection) {
-            response.status(404).json({message: "the specified collection does not exist"})
-            return
+            response.status(404).json({message: "the specified collection does not exist"});
+            return;
         }
 
         await this.collectionRepository.remove(collection);
 
-        response.status(200)
-        return
+        response.status(200);
+        return;
     }
 
 }

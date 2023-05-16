@@ -2,6 +2,7 @@ import { AppDataSource } from '../data-source'
 import { NextFunction, Request, Response } from "express"
 import { Recipe } from "../entity/Recipe"
 import { UploadedFile } from 'express-fileupload'
+import * as Joi from 'joi';
 
 export class RecipeController {
 
@@ -10,6 +11,26 @@ export class RecipeController {
     private tempImagePath = "http://localhost:3000/temp/"
     private fs = require('fs')
     private path = require('path')
+
+    private recipeSchema = Joi.object({
+        id: Joi.number(),
+        name: Joi.string().required(),
+        instructions: Joi.string().required(),
+        image: Joi.string().required(),
+        ingredients: Joi.array().items({
+            id: Joi.number(),
+            amount: Joi.string().allow('').required(),
+            ingredient_name: Joi.string().required()
+        }).required(),
+        tags: Joi.array().items({
+            id: Joi.number(),
+            tag_name: Joi.string().required()
+        }).required(),
+        keywords: Joi.array().items({
+            id: Joi.number(),
+            keyword_name: Joi.string().required()
+        }).required()
+    });
 
     async all(request: Request, response: Response, next: NextFunction) {
         const recipes = await this.recipeRepository.find();
@@ -43,11 +64,43 @@ export class RecipeController {
         return recipe;
     }
 
-    async save(request: Request, response: Response, next: NextFunction) {
-        const { name, instructions, image, ingredients, tags, keywords } = request.body;
+    async upload(request: Request, response: Response, next: NextFunction){
+        if (request.files && request.files.image) {
+            if(Array.isArray(request.files)){
+                response.status(500).json({ message: "multiple images not supported" })
+                return
+            }
+            const imageFile = request.files.image;
+            const imageFileName = `${(imageFile as UploadedFile).name}`;
+        
+            // Move the image file to the "public/temp" directory
+            (imageFile as UploadedFile).mv(`public/temp/${imageFileName}`, (error) => {
+                if (error) {
+                    console.error(error);
+                    response.status(500).json({ message: "failed to upload image file" });
+                    return;
+                }
 
-        //TODO validate parameters
-        //response.status(400).json({message: "the request parameters are incorrect"})
+                next()
+            });
+            response.status(200).json({image: this.tempImagePath + imageFileName})
+            return;
+        }
+        else{
+            response.status(400).json({message: "No image provided"});
+            return;
+        }
+    }
+
+    async save(request: Request, response: Response, next: NextFunction) {
+        //validate parameters
+        const { error } = this.recipeSchema.validate(request.body);
+        if (error) {
+            response.status(400).json({ message: error });
+            return;
+        }
+
+        const { name, instructions, image, ingredients, tags, keywords } = request.body;
 
         const recipeToSave = Object.assign(new Recipe(), {
             name,
@@ -82,35 +135,14 @@ export class RecipeController {
         return await this.recipeRepository.save(recipe);
     }
 
-    async upload(request: Request, response: Response, next: NextFunction){
-        if (request.files && request.files.image) {
-            if(Array.isArray(request.files)){
-                response.status(500).json({ message: "multiple images not supported" })
-                return
-            }
-            const imageFile = request.files.image;
-            const imageFileName = `${(imageFile as UploadedFile).name}`;
-        
-            // Move the image file to the "public/temp" directory
-            (imageFile as UploadedFile).mv(`public/temp/${imageFileName}`, (error) => {
-                if (error) {
-                    console.error(error);
-                    response.status(500).json({ message: "failed to upload image file" });
-                    return;
-                }
-
-                next()
-            });
-            response.status(200).json({image: this.tempImagePath + imageFileName})
-            return;
-        }
-        else{
-            response.status(400).json({message: "No image provided"});
-            return;
-        }
-    }
-
     async update(request: Request, response: Response, next: NextFunction){
+        //validate parameters
+        const { error } = this.recipeSchema.validate(request.body);
+        if (error) {
+            response.status(400).json({ message: error });
+            return;
+        }
+        
         const id = parseInt(request.params.id);
         const { name, instructions, image, ingredients, tags, keywords } = request.body;
 
@@ -118,9 +150,6 @@ export class RecipeController {
             response.status(400).json({message: "the id must be a number"})
             return
         }
-
-        //TODO validate parameters
-        //response.status(400).json({message: "the request parameters are incorrect"})
         
         let recipe = await this.recipeRepository.findOneBy({ id });
 

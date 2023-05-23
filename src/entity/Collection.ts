@@ -9,7 +9,7 @@ export class Collection {
     @Column()
     name: string
     
-    @ManyToMany(() => Recipe)
+    @ManyToMany(() => Recipe, (recipe) => recipe.collections)
     @JoinTable({
         name: "collection_recipes",
         joinColumn: {

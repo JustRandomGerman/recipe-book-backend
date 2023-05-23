@@ -1,8 +1,9 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Ingredient } from "./Ingredient";
 import { Tag } from "./Tag";
 import { Keyword } from "./Keyword";
 import { ImagePath } from "./ImagePath";
+import { Collection } from "./Collection";
 
 @Entity()
 export class Recipe {
@@ -40,4 +41,7 @@ export class Recipe {
         onDelete: "CASCADE"
     })
     keywords: Keyword[]
+
+    @ManyToMany(() => Collection, (collection) => collection.recipes)
+    collections: Collection[]
 }

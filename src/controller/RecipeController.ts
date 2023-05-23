@@ -54,9 +54,16 @@ export class RecipeController {
             return;
         }
 
-        const recipe = await this.recipeRepository.findOne({
-            where: { id }
-        });
+        const recipe = await this.recipeRepository
+        .createQueryBuilder('recipe')
+        .leftJoinAndSelect('recipe.ingredients', 'ingredient')
+        .leftJoinAndSelect('recipe.tags', 'tag')
+        .leftJoinAndSelect('recipe.keywords', 'keyword')
+        .leftJoinAndSelect('recipe.image_paths', 'image_path')
+        .leftJoinAndSelect('recipe.collections', 'collection')
+        .where('recipe.id = :id', { id })
+        .getOne();
+
 
         if (!recipe) {
             response.status(404).json({message: "The recipe could not be found"});

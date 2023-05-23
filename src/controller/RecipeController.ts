@@ -1,17 +1,17 @@
-import { AppDataSource } from '../data-source'
-import { NextFunction, Request, Response } from "express"
-import { Recipe } from "../entity/Recipe"
-import { ImagePath } from '../entity/ImagePath'
-import { UploadedFile } from 'express-fileupload'
+import { AppDataSource } from '../data-source';
+import { NextFunction, Request, Response } from "express";
+import { Recipe } from "../entity/Recipe";
+import { ImagePath } from '../entity/ImagePath';
+import { UploadedFile } from 'express-fileupload';
 import * as Joi from 'joi';
 
 export class RecipeController {
 
-    private recipeRepository = AppDataSource.getRepository(Recipe)
-    private baseImagePath = "http://localhost:3000/images/"
-    private tempImagePath = "http://localhost:3000/temp/"
-    private fs = require('fs')
-    private path = require('path')
+    private recipeRepository = AppDataSource.getRepository(Recipe);
+    private baseImagePath = "http://localhost:3000/images/";
+    private tempImagePath = "http://localhost:3000/temp/";
+    private fs = require('fs');
+    private path = require('path');
 
     private recipeSchema = Joi.object({
         id: Joi.number(),
@@ -50,7 +50,7 @@ export class RecipeController {
         const id = parseInt(request.params.id);
 
         if(isNaN(id)){
-            response.status(400).json({message: "the id must be a number"});
+            response.status(400).json({message: "The ID must be a valid number"});
             return;
         }
 
@@ -59,7 +59,7 @@ export class RecipeController {
         });
 
         if (!recipe) {
-            response.status(404).json({message: "the specified recipe does not exist"});
+            response.status(404).json({message: "The recipe could not be found"});
             return;
         }
 
@@ -72,7 +72,7 @@ export class RecipeController {
     async upload(request: Request, response: Response, next: NextFunction){
         if (request.files && request.files.image) {
             if(Array.isArray(request.files)){
-                response.status(500).json({ message: "multiple images not supported" });
+                response.status(500).json({ message: "Multiple images not supported" });
                 return;
             }
             const imageFile = request.files.image;
@@ -82,7 +82,7 @@ export class RecipeController {
             (imageFile as UploadedFile).mv(`public/temp/${imageFileName}`, (error) => {
                 if (error) {
                     console.error(error);
-                    response.status(500).json({ message: "failed to upload image file" });
+                    response.status(500).json({ message: "Failed to upload image file" });
                     return;
                 }
 
@@ -137,7 +137,7 @@ export class RecipeController {
             }
             else{
                 //The image has to be on the server before updating the image property of the recipe. That means the upload function has to be called before changing the image
-                response.status(400).json({message: "no valid image URL given. You have to upload the image and use the URL from the response"});
+                response.status(400).json({message: "No valid image URL given. You have to upload the image and use the URL from the response"});
                 return;
             }
         })
@@ -154,6 +154,12 @@ export class RecipeController {
     }
 
     async update(request: Request, response: Response, next: NextFunction){
+        const id = parseInt(request.params.id);
+        if(isNaN(id)){
+            response.status(400).json({message: "The ID must be a valid number"});
+            return;
+        }
+        
         //validate parameters
         const { error } = this.recipeSchema.validate(request.body);
         if (error) {
@@ -161,18 +167,12 @@ export class RecipeController {
             return;
         }
         
-        const id = parseInt(request.params.id);
         const { name, instructions, image_paths, ingredients, tags, keywords } = request.body;
-
-        if(isNaN(id)){
-            response.status(400).json({message: "the id must be a number"});
-            return;
-        }
         
         let recipe = await this.recipeRepository.findOneBy({ id });
 
         if (!recipe) {
-            response.status(404).json({message: "the specified recipe does not exist"});
+            response.status(404).json({message: "The recipe could not be found"});
             return;
         }
 
@@ -181,14 +181,6 @@ export class RecipeController {
         recipe.ingredients = ingredients;
         recipe.tags = tags;
         recipe.keywords = keywords;
-
-        //delete old images of the recipe as they don't necessarily get overwritten when they have different file endings
-        /*recipe.image_paths.map((image_path) => {
-            const complete_path = `public/images/${image_path.path}`;
-            this.fs.unlink(complete_path, (error) => {
-                console.error(error);
-            });
-        })*/
 
         let recipe_image_paths : ImagePath[] = [];
         image_paths.map((image_path, index) => {
@@ -212,7 +204,7 @@ export class RecipeController {
             }
             else{
                 //The image has to be on the server before updating the image property of the recipe. That means the upload function has to be called before changing the image
-                response.status(400).json({message: "no valid image URL given. You have to upload the image and use the URL from the response"});
+                response.status(400).json({message: "No valid image URL given. You have to upload the image and use the URL from the response"});
                 return;
             }
         })
@@ -232,14 +224,14 @@ export class RecipeController {
         const id = parseInt(request.params.id);
 
         if(isNaN(id)){
-            response.status(400).json({message: "the id must be a number"});
+            response.status(400).json({message: "The ID must be a valid number"});
             return;
         }
 
         let recipe = await this.recipeRepository.findOneBy({ id });
 
         if (!recipe) {
-            response.status(404).json({message: "the specified recipe does not exist"});
+            response.status(404).json({message: "The recipe could not be found"});
             return;
         }
 

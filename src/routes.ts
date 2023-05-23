@@ -60,9 +60,21 @@ export const Routes = [
     },
     {
         path: "/collections/:id",
-        method: "put",
+        method: "patch",
         controller: CollectionController,
         action: "update"
+    },
+    {
+        path: "/collections/:collection_id/recipes/:recipe_id",
+        method: "post",
+        controller: CollectionController,
+        action: "addRecipe"
+    },
+    {
+        path: "/collections/:collection_id/recipes/:recipe_id",
+        method: "delete",
+        controller: CollectionController,
+        action: "removeRecipe"
     },
     {
         path: "/collections/:id",

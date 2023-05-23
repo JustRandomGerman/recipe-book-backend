@@ -32,7 +32,8 @@ export class RecipeController {
         keywords: Joi.array().items({
             id: Joi.number(),
             keyword_name: Joi.string().required()
-        }).required()
+        }).required(),
+        collections: Joi.array()
     });
 
     async all(request: Request, response: Response, next: NextFunction) {

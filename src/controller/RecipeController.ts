@@ -244,7 +244,7 @@ export class RecipeController {
         })
 
         await this.recipeRepository.remove(recipe);
-        response.status(200);
+        response.status(200).json({message: "Successfully deleted recipe"});
         return;
     }
 }

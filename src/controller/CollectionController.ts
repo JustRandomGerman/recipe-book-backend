@@ -179,7 +179,7 @@ export class CollectionController {
 
         await this.collectionRepository.remove(collection);
 
-        response.status(200);
+        response.status(200).json({message: "Successfully deleted collection"});
         return;
     }
 

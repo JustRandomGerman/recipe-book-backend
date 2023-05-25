@@ -11,6 +11,12 @@ export const Routes = [
         action: "all"
     },
     {
+        path: "/recipes/recent",
+        method: "get",
+        controller: RecipeController,
+        action: "recent"
+    },
+    {
         path: "/recipes/:id",
         method: "get",
         controller: RecipeController,

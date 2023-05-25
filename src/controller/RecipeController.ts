@@ -47,6 +47,17 @@ export class RecipeController {
         return recipes;
     }
 
+    async recent(request: Request, response: Response, next: NextFunction) {
+        const recipes = await this.recipeRepository.find({order: {last_viewed: "DESC"}, take: 20});
+
+        //complete the link to the image
+        recipes.map((recipe: Recipe) => {
+            recipe.image_paths.map((imagePath : ImagePath) => imagePath.path = this.baseImagePath + imagePath.path);
+        });
+
+        return recipes;
+    }
+
     async one(request: Request, response: Response, next: NextFunction) {
         const id = parseInt(request.params.id);
 
@@ -71,8 +82,13 @@ export class RecipeController {
             return;
         }
 
+        //set the viewed date to current time and save
+        recipe.last_viewed = new Date(Date.now());
+        const newRecipe = await this.recipeRepository.save(recipe);
+
         //complete the link to the image
-        recipe.image_paths.map((imagePath : ImagePath) => imagePath.path = this.baseImagePath + imagePath.path);
+        newRecipe.image_paths.map((imagePath : ImagePath) => imagePath.path = this.baseImagePath + imagePath.path);
+
 
         return recipe;
     }

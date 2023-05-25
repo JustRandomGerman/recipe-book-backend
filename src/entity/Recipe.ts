@@ -16,6 +16,9 @@ export class Recipe {
     @Column("text")
     instructions: string
 
+    @Column({type: "timestamp", nullable: true})
+    last_viewed: Date
+
     @OneToMany(() => ImagePath, (imagePath) => imagePath.recipe, {
         eager: true,
         cascade: true

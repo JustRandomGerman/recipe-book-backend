@@ -36,18 +36,37 @@ export class SearchController {
     }
 
     async searchRecipe(query: string, tags: string[], response: Response){
-        const recipes = await this.recipeRepository
+        //Match everything in the query in double quotes
+        const regex = /"(.*?)"/g;
+        const matches = query.match(regex) || [];
+      
+        // Remove the quotation marks from the matches, but really only the first one will be used
+        const extractedQuery = matches.map(match => match.replace(/"/g, ''));
+
+
+        //create sql query
+        const queryBuilder = this.recipeRepository
         .createQueryBuilder("recipe")
         //join all additional columns to the recipe
         .leftJoinAndSelect("recipe.image_paths", "image_path")
         .leftJoinAndSelect("recipe.keywords", "keyword")
         .leftJoinAndSelect("recipe.ingredients", "ingredient")
         .leftJoinAndSelect("recipe.tags", "tag")
-        //search for recipes with matching name
-        .where("recipe.name LIKE :name", { name: `%${query}%` })
-        //search for recipes with matching keywords
-        .orWhere("keyword.keyword_name LIKE :keyword", { keyword: `%${query}%` })
-        .getMany();
+
+        //search for recipes with a certain name or keyword
+        if(extractedQuery.length === 0){
+            //no text in quotation marks, so characters before the query are allowed
+            queryBuilder.where("recipe.name LIKE :name", { name: `%${query}%` })
+            .orWhere("keyword.keyword_name LIKE :keyword", { keyword: `%${query}%` })
+        }
+        else{
+            //text in quotation marks, do not allow characters before and after query
+            queryBuilder.where("recipe.name LIKE :name", { name: `${extractedQuery}` })
+            .orWhere("keyword.keyword_name LIKE :keyword", { keyword: `${extractedQuery}` })
+        }
+        
+        const recipes = await queryBuilder.getMany();
+
 
         //if there are filter tags only get recipes with those tags
         if (tags.length > 0) {
@@ -74,6 +93,7 @@ export class SearchController {
             return;
         }
         
+        //finish recipe image paths
         recipes.forEach((recipe: Recipe) => {
             recipe.image_paths.forEach( (imagePath: ImagePath) =>
                 (imagePath.path = this.baseImagePath + imagePath.path)
@@ -84,15 +104,32 @@ export class SearchController {
     }
 
     async searchIngredient(query: string, tags: string[], response: Response){
-        const queryBuilder = await this.recipeRepository
+        //Match everything in the query in double quotes
+        const regex = /"(.*?)"/g;
+        const matches = query.match(regex) || [];
+      
+        // Remove the quotation marks from the matches, but really only the first one will be used
+        const extractedQuery = matches.map(match => match.replace(/"/g, ''));
+        
+
+        //create sql query
+        const queryBuilder = this.recipeRepository
         .createQueryBuilder("recipe")
         //join all additional columns to the recipe
         .leftJoinAndSelect("recipe.image_paths", "image_path")
         .leftJoinAndSelect("recipe.keywords", "keyword")
         .leftJoinAndSelect("recipe.ingredients", "ingredient")
-        .leftJoinAndSelect("recipe.tags", "tag")
+        .leftJoinAndSelect("recipe.tags", "tag");
+        
         //search for recipes containing an ingredient
-        .where("ingredient.ingredient_name LIKE :ingredient", { ingredient: `%${query}%` });
+        if(extractedQuery.length === 0){
+            //no text in quotation marks, so characters before the query are allowed
+            queryBuilder.where("ingredient.ingredient_name LIKE :ingredient", { ingredient: `%${query}%` });
+        }
+        else{
+            //text in quotation marks, do not allow characters before and after query
+            queryBuilder.where("ingredient.ingredient_name LIKE :ingredient", { ingredient: `${extractedQuery}` });
+        }
 
         //if there are filter tags only get recipes with those tags
         if (tags.length > 0) {
@@ -103,31 +140,12 @@ export class SearchController {
 
         const recipes = await queryBuilder.getMany();
 
-        //if there are filter tags only get recipes with those tags
-        /*if (tags.length > 0) {
-            const filteredRecipes = recipes.filter((recipe) => {
-                return tags.every((tag) => recipe.tags.some((recipeTag) => recipeTag.tag_name === tag));
-            });
-        
-            if (filteredRecipes.length === 0) {
-                response.status(404).json({message: "No recipes could be found using your search criteria. Try a different query or remove some filter tags"});
-                return;
-            }
-        
-            filteredRecipes.forEach((recipe) => {
-                recipe.image_paths.forEach( (imagePath: ImagePath) =>
-                    (imagePath.path = this.baseImagePath + imagePath.path)
-                );
-            });
-        
-            return filteredRecipes;
-        }*/
-
         if (recipes.length === 0) {
             response.status(404).json({message: "No recipes could be found using your search criteria. Try a different query or remove some filter tags"});
             return;
         }
         
+        //finish recipe image paths
         recipes.forEach((recipe: Recipe) => {
             recipe.image_paths.forEach( (imagePath: ImagePath) =>
                 (imagePath.path = this.baseImagePath + imagePath.path)

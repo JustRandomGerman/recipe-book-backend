@@ -4,14 +4,16 @@ import { Recipe } from "../entity/Recipe";
 import { ImagePath } from '../entity/ImagePath';
 import { UploadedFile } from 'express-fileupload';
 import * as Joi from 'joi';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export class RecipeController {
 
     private recipeRepository = AppDataSource.getRepository(Recipe);
     private baseImagePath = "http://localhost:3000/images/";
     private tempImagePath = "http://localhost:3000/temp/";
-    private fs = require('fs');
-    private path = require('path');
+    //private fs = require('fs');
+    //private path = require('path');
 
     private recipeSchema = Joi.object({
         id: Joi.number(),
@@ -151,9 +153,9 @@ export class RecipeController {
             else if(image_path.path.startsWith(this.tempImagePath)){
                 //move the image from temp to images directory, rename it and change the image name in database
                 const imageName = image_path.path.replace(this.tempImagePath, "");
-                const extension = this.path.extname(imageName);
+                const extension = path.extname(imageName);
                 const newImageName = `${recipe.id}-${name}-${index}${extension}`;
-                this.fs.rename(`public/temp/${imageName}`, `public/images/${newImageName}`, function(err) {
+                fs.rename(`public/temp/${imageName}`, `public/images/${newImageName}`, function(err) {
                     if (err) throw err;
                 });
                 recipe_image_paths.push(Object.assign(new ImagePath(), {
@@ -218,9 +220,9 @@ export class RecipeController {
             else if(image_path.path.startsWith(this.tempImagePath)){
                 //move the image from temp to images directory, rename it and change the image name in database
                 const imageName = image_path.path.replace(this.tempImagePath, "");
-                const extension = this.path.extname(imageName);
+                const extension = path.extname(imageName);
                 const newImageName = `${recipe.id}-${name}-${index}${extension}`;
-                this.fs.rename(`public/temp/${imageName}`, `public/images/${newImageName}`, function(err) {
+                fs.rename(`public/temp/${imageName}`, `public/images/${newImageName}`, function(err) {
                     if (err) throw err;
                 });
                 recipe_image_paths.push(Object.assign(new ImagePath(), {
@@ -263,7 +265,7 @@ export class RecipeController {
         //delete images associated with recipe
         recipe.image_paths.map((image_path) => {
             const complete_path = `public/images/${image_path.path}`;
-            this.fs.unlink(complete_path, (error) => {
+            fs.unlink(complete_path, (error) => {
                 console.error(error);
             });
         })

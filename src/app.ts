@@ -1,15 +1,19 @@
 import * as express from "express"
 import * as bodyParser from "body-parser"
 import * as fileUpload from "express-fileupload"
+import * as cors from "cors"
 import { Request, Response } from "express"
 import { AppDataSource } from "./data-source"
 import { Routes } from "./routes"
-import { Recipe } from "./entity/Recipe"
 
 AppDataSource.initialize().then(async () => {
 
     // create express app
     const app = express()
+    app.use(cors({
+        origin: "*",
+        credentials: true
+    }))
     app.use(bodyParser.json())
     app.use(fileUpload())
 

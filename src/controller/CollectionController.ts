@@ -41,7 +41,7 @@ export class CollectionController {
         }
 
         collection.recipes.map((recipe: Recipe) => {
-            recipe.image_paths.map((imagePath : ImagePath) => imagePath.path = this.baseImagePath + imagePath.path);
+            recipe.image_paths.map((imagePath: ImagePath) => imagePath.path = this.baseImagePath + imagePath.path);
         });
 
         return collection;

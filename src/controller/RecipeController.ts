@@ -12,8 +12,6 @@ export class RecipeController {
     private recipeRepository = AppDataSource.getRepository(Recipe);
     private baseImagePath = "http://localhost:3000/images/";
     private tempImagePath = "http://localhost:3000/temp/";
-    //private fs = require('fs');
-    //private path = require('path');
 
     private recipeSchema = Joi.object({
         id: Joi.number(),
@@ -44,18 +42,24 @@ export class RecipeController {
 
         //complete the link to the image
         recipes.map((recipe: Recipe) => {
-            recipe.image_paths.map((imagePath : ImagePath) => imagePath.path = this.baseImagePath + imagePath.path);
+            recipe.image_paths.map((imagePath: ImagePath) => imagePath.path = this.baseImagePath + imagePath.path);
         });
 
         return recipes;
     }
 
     async recent(request: Request, response: Response, next: NextFunction) {
-        const recipes = await this.recipeRepository.find({order: {last_viewed: "DESC"}, take: 20});
+        const amount = request.query.amount;
+
+        //if amount is undefined, an array or anything else just use the default value of 20
+        const amountValue = typeof amount !== 'string' ? 20 : parseInt(amount, 10);
+
+        //get last viewed recipes, if amountValue is NaN use default of 20
+        const recipes = await this.recipeRepository.find({order: {last_viewed: "DESC"}, take: (isNaN(amountValue) ? 20 : amountValue)});
 
         //complete the link to the image
         recipes.map((recipe: Recipe) => {
-            recipe.image_paths.map((imagePath : ImagePath) => imagePath.path = this.baseImagePath + imagePath.path);
+            recipe.image_paths.map((imagePath: ImagePath) => imagePath.path = this.baseImagePath + imagePath.path);
         });
 
         return recipes;
@@ -90,7 +94,7 @@ export class RecipeController {
         const newRecipe = await this.recipeRepository.save(recipe);
 
         //complete the link to the image
-        newRecipe.image_paths.map((imagePath : ImagePath) => imagePath.path = this.baseImagePath + imagePath.path);
+        newRecipe.image_paths.map((imagePath: ImagePath) => imagePath.path = this.baseImagePath + imagePath.path);
 
 
         return recipe;
@@ -145,7 +149,7 @@ export class RecipeController {
 
         const recipe = await this.recipeRepository.save(recipeToSave);
 
-        let recipe_image_paths : ImagePath[] = [];
+        let recipe_image_paths: ImagePath[] = [];
         image_paths.map((image_path, index) => {
             if(image_path.path.startsWith(this.baseImagePath)){
                 //do nothing, because image hasn't changed
@@ -174,7 +178,7 @@ export class RecipeController {
         const newRecipe = await this.recipeRepository.save(recipe);
         
         //complete the link to the image
-        recipe.image_paths.map((imagePath : ImagePath) => imagePath.path = this.baseImagePath + imagePath.path);
+        recipe.image_paths.map((imagePath: ImagePath) => imagePath.path = this.baseImagePath + imagePath.path);
 
         response.status(200).json(newRecipe);
         return;
@@ -209,7 +213,7 @@ export class RecipeController {
         recipe.tags = tags;
         recipe.keywords = keywords;
 
-        let recipe_image_paths : ImagePath[] = [];
+        let recipe_image_paths: ImagePath[] = [];
         image_paths.map((image_path, index) => {
             if(image_path.path.startsWith(this.baseImagePath)){
                 const imageName = image_path.path.replace(this.baseImagePath, "");
@@ -241,7 +245,7 @@ export class RecipeController {
         const newRecipe = await this.recipeRepository.save(recipe);
         
         //complete the link to the image
-        recipe.image_paths.map((imagePath : ImagePath) => imagePath.path = this.baseImagePath + imagePath.path);
+        recipe.image_paths.map((imagePath: ImagePath) => imagePath.path = this.baseImagePath + imagePath.path);
 
         response.status(200).json(newRecipe);
         return;

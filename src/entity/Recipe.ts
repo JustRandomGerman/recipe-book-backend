@@ -33,15 +33,13 @@ export class Recipe {
 
     @OneToMany(() => Tag, (tag) => tag.recipe, {
         eager: true,
-        cascade: true,
-        onDelete: "CASCADE"
+        cascade: true
     })
     tags: Tag[]
 
     @OneToMany(() => Keyword, (keyword) => keyword.recipe, {
         eager: true,
-        cascade: true,
-        onDelete: "CASCADE"
+        cascade: true
     })
     keywords: Keyword[]
 

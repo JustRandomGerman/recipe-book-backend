@@ -138,10 +138,11 @@ export class RecipeController {
 
         const { name, instructions, image_paths, ingredients, tags, keywords } = request.body;
 
+        //save the new recipe, primarily for getting the ID (images are just empty array because they first get renamed, then saved)
         const recipeToSave = Object.assign(new Recipe(), {
             name,
             instructions,
-            image_paths,
+            image_paths: [],
             ingredients,
             tags,
             keywords

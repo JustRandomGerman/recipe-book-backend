@@ -20,8 +20,13 @@ Change to the docker directory and start the container:
 cd test_docker
 docker-compose -f recipe-book-test-docker-compose.yml up
 ```
+Copy the test images to the correct directory
+```
+cp test_images/* ../public/images
+```
 The settings in the example data source are already set for the test docker, so you just need to copy it:
 ```
+cd ../src
 cp data-source.ts.example data-source.ts
 ```
 
@@ -37,3 +42,9 @@ Configuring settings for the database
 cp data-source.ts.example data-source.ts
 ```
 And then set username, password and database in data-source.ts
+
+### Start the backend
+In the root directory run:
+```
+npm start
+```

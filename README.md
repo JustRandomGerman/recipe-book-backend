@@ -6,14 +6,26 @@ the backend for the recipe-book app
 ### Requirements
 Needed packages:
 - nodejs
-- mysql
+- mysql (when not using the test docker)
+- docker-compose (when using the test docker)
 
 Install all other dependencies:
 ```
 npm install
 ```
 
-### Database
+### Setting up the database (with the test docker)
+Change to the docker directory and start the container:
+```
+cd test_docker
+docker-compose -f recipe-book-test-docker-compose.yml up
+```
+The settings in the example data source are already set for the test docker, so you just need to copy it:
+```
+cp data-source.ts.example data-source.ts
+```
+
+### Setting up the database (when using manual installation)
 Create a new database and user and grant privileges on the database to the user:
 ```
 create database <DATABASE_NAME>;

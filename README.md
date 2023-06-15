@@ -6,6 +6,8 @@ the backend for the recipe-book app
 ### Requirements
 Needed packages:
 - nodejs
+- typescript
+- ts-node
 - mysql (when not using the test docker)
 - docker-compose (when using the test docker)
 

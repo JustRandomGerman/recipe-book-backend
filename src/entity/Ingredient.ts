@@ -1,10 +1,11 @@
 import { Column, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm"
 import { Recipe } from "./Recipe"
+import { IngredientGroup } from "./IngredientGroup"
 
 @Entity()
 export class Ingredient {
-    @PrimaryGeneratedColumn()
-    id: number
+    @PrimaryGeneratedColumn("uuid")
+    id: string
 
     @Column()
     amount: string
@@ -12,8 +13,11 @@ export class Ingredient {
     @Column()
     ingredient_name: string
 
-    @ManyToOne(() => Recipe, (recipe) => recipe.ingredients, {
+    //@Column()
+    //position: number
+
+    @ManyToOne(() => IngredientGroup, (ingredient_group) => ingredient_group.ingredients, {
         onDelete: "CASCADE"
     })
-    recipe: Recipe
+    ingredient_group: IngredientGroup
 }

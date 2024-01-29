@@ -3,8 +3,8 @@ import { Recipe } from "./Recipe"
 
 @Entity()
 export class Tag {
-    @PrimaryGeneratedColumn()
-    id: number
+    @PrimaryGeneratedColumn("uuid")
+    id: string
 
     @Column()
     tag_name: string

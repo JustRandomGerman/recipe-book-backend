@@ -3,8 +3,8 @@ import { Recipe } from "./Recipe"
 
 @Entity()
 export class Keyword{
-    @PrimaryGeneratedColumn()
-    id: number
+    @PrimaryGeneratedColumn("uuid")
+    id: string
 
     @Column()
     keyword_name: string

@@ -20,10 +20,15 @@ export class RecipeController {
         image_paths: Joi.array().items({
             path: Joi.string().required()
         }).required(),
-        ingredients: Joi.array().items({
-            id: Joi.number(),
-            amount: Joi.string().allow('').required(),
-            ingredient_name: Joi.string().required()
+        ingredient_groups: Joi.array().items({
+            id: Joi.string(),
+            name: Joi.string().required(),
+            position: Joi.number(),
+            ingredients: Joi.array().items({
+                id: Joi.string(),
+                amount: Joi.string().allow('').required(),
+                ingredient_name: Joi.string().required()
+            })
         }).required(),
         tags: Joi.array().items({
             id: Joi.number(),
@@ -73,16 +78,9 @@ export class RecipeController {
             return;
         }
 
-        const recipe = await this.recipeRepository
-        .createQueryBuilder('recipe')
-        .leftJoinAndSelect('recipe.ingredients', 'ingredient')
-        .leftJoinAndSelect('recipe.tags', 'tag')
-        .leftJoinAndSelect('recipe.keywords', 'keyword')
-        .leftJoinAndSelect('recipe.image_paths', 'image_path')
-        .leftJoinAndSelect('recipe.collections', 'collection')
-        .where('recipe.id = :id', { id })
-        .getOne();
-
+        const recipe = await this.recipeRepository.findOne({
+            where: { id }
+        });
 
         if (!recipe) {
             response.status(404).json({message: "The recipe could not be found"});
@@ -136,14 +134,14 @@ export class RecipeController {
             return;
         }
 
-        const { name, instructions, image_paths, ingredients, tags, keywords } = request.body;
+        const { name, instructions, image_paths, ingredient_groups, tags, keywords } = request.body;
 
         //save the new recipe, primarily for getting the ID (images are just empty array because they first get renamed, then saved)
         const recipeToSave = Object.assign(new Recipe(), {
             name,
             instructions,
             image_paths: [],
-            ingredients,
+            ingredient_groups,
             tags,
             keywords
         });
@@ -199,7 +197,7 @@ export class RecipeController {
             return;
         }
         
-        const { name, instructions, image_paths, ingredients, tags, keywords } = request.body;
+        const { name, instructions, image_paths, ingredient_groups, tags, keywords } = request.body;
         
         let recipe = await this.recipeRepository.findOneBy({ id });
 
@@ -210,7 +208,7 @@ export class RecipeController {
 
         recipe.name = name;
         recipe.instructions = instructions;
-        recipe.ingredients = ingredients;
+        recipe.ingredient_groups = ingredient_groups;
         recipe.tags = tags;
         recipe.keywords = keywords;
 

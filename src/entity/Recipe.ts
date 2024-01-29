@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Ingredient } from "./Ingredient";
+import { IngredientGroup } from "./IngredientGroup";
 import { Tag } from "./Tag";
 import { Keyword } from "./Keyword";
 import { ImagePath } from "./ImagePath";
@@ -25,11 +25,11 @@ export class Recipe {
     })
     image_paths: ImagePath[]
 
-    @OneToMany(() => Ingredient, (ingredient) => ingredient.recipe, {
+    @OneToMany(() => IngredientGroup, (ingredient_group) => ingredient_group.recipe, {
         eager: true,
         cascade: true
     })
-    ingredients: Ingredient[]
+    ingredient_groups: IngredientGroup[]
 
     @OneToMany(() => Tag, (tag) => tag.recipe, {
         eager: true,

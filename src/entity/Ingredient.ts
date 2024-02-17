@@ -13,8 +13,8 @@ export class Ingredient {
     @Column()
     ingredient_name: string
 
-    //@Column()
-    //position: number
+    @Column()
+    position: number
 
     @ManyToOne(() => IngredientGroup, (ingredient_group) => ingredient_group.ingredients, {
         onDelete: "CASCADE"

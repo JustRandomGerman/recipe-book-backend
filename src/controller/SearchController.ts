@@ -50,7 +50,7 @@ export class SearchController {
         //join all additional columns to the recipe
         .leftJoinAndSelect("recipe.image_paths", "image_path")
         .leftJoinAndSelect("recipe.keywords", "keyword")
-        .leftJoinAndSelect("recipe.ingredients", "ingredient")
+        .leftJoinAndSelect("recipe.ingredient_groups", "ingredient_group")
         .leftJoinAndSelect("recipe.tags", "tag")
 
         //search for recipes with a certain name or keyword
@@ -118,7 +118,7 @@ export class SearchController {
         //join all additional columns to the recipe
         .leftJoinAndSelect("recipe.image_paths", "image_path")
         .leftJoinAndSelect("recipe.keywords", "keyword")
-        .leftJoinAndSelect("recipe.ingredients", "ingredient")
+        .leftJoinAndSelect("recipe.ingredient_groups", "ingredient_group")
         .leftJoinAndSelect("recipe.tags", "tag");
         
         //search for recipes containing an ingredient

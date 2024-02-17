@@ -27,7 +27,8 @@ export class RecipeController {
             ingredients: Joi.array().items({
                 id: Joi.string(),
                 amount: Joi.string().allow('').required(),
-                ingredient_name: Joi.string().required()
+                ingredient_name: Joi.string().required(),
+                position: Joi.number().required()
             })
         }).required(),
         tags: Joi.array().items({

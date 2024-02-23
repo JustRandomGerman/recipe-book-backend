@@ -2,6 +2,7 @@ import { RecipeController } from './controller/RecipeController';
 import { CollectionController } from './controller/CollectionController';
 import { SearchController } from './controller/SearchController';
 import { TagController } from './controller/TagController';
+import { DeveloperController } from './controller/DeveloperController';
 
 export const Routes = [
     {
@@ -99,5 +100,11 @@ export const Routes = [
         method: "get",
         controller: TagController,
         action: "available"
+    },
+    {
+        path: "/developer/export",
+        method: "get",
+        controller: DeveloperController,
+        action: "export"
     }
 ];

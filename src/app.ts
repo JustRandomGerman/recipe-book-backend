@@ -7,7 +7,6 @@ import { AppDataSource } from "./data-source"
 import { Routes } from "./routes"
 
 AppDataSource.initialize().then(async () => {
-
     // create express app
     const app = express()
     app.use(cors({
@@ -36,8 +35,8 @@ AppDataSource.initialize().then(async () => {
     // ...
 
     // start express server
-    app.listen(3000)
+    app.listen(process.env.PORT)
 
-    console.log("Express server has started on port 3000. Open http://localhost:3000/recipes to see results")
+    console.log(`Express server has started on port ${process.env.PORT}. Open http://localhost:${process.env.PORT}/recipes to see results`)
 
 }).catch(error => console.log(error))

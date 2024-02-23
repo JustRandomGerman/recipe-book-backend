@@ -1,4 +1,5 @@
 node_modules
 build
-src/data-source.ts
+.env
 test-data.json
+dbdump/dump.sql

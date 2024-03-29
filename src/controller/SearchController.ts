@@ -119,6 +119,7 @@ export class SearchController {
         .leftJoinAndSelect("recipe.image_paths", "image_path")
         .leftJoinAndSelect("recipe.keywords", "keyword")
         .leftJoinAndSelect("recipe.ingredient_groups", "ingredient_group")
+        .leftJoinAndSelect("ingredient_group.ingredients", "ingredient")
         .leftJoinAndSelect("recipe.tags", "tag");
         
         //search for recipes containing an ingredient
@@ -139,11 +140,6 @@ export class SearchController {
         }
 
         const recipes = await queryBuilder.getMany();
-
-        if (recipes.length === 0) {
-            response.status(404).json({message: "No recipes could be found using your search criteria. Try a different query or remove some filter tags"});
-            return;
-        }
         
         //finish recipe image paths
         recipes.forEach((recipe: Recipe) => {

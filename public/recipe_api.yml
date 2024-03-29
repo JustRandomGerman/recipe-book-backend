@@ -1,0 +1,498 @@
+openapi: 3.0.3
+info:
+  title: Api specification
+  description: API specification for the "Recipe Book" App.
+  version: 1.0.11
+tags:
+  - name: Recipes
+  - name: Collections
+  - name: Search
+  - name: Tags
+  - name: Developer
+paths:
+  # Recipe paths
+  /recipes:
+    get:
+      tags:
+        - Recipes
+      summary: Get all recipes
+      description: get recipes
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Recipe'
+    post:
+      tags:
+        - Recipes
+      summary: Create new recipe
+      description: get recipes
+      requestBody:
+        description: The new recipe
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewRecipe'
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+        '400':
+          description: Recipe invalid
+  /recipes/recent:
+    get:
+      tags:
+        - Recipes
+      summary: Get recent recipes
+      description: get recipes
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+  /recipes/{id}:
+    get:
+      tags:
+        - Recipes
+      summary: Get specific recipe
+      description: get recipes
+      parameters:
+        - name: id
+          in: path
+          description: ID of recipe to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+        '400':
+          description: ID is not a valid number
+        '404':
+          description: Recipe not found
+    put:
+      tags:
+        - Recipes
+      summary: Update a recipe
+      description: get recipes
+      parameters:
+        - name: id
+          in: path
+          description: ID of recipe to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+        '400':
+          description: Invalid recipe
+        '404':
+          description: Recipe not found
+    delete:
+      tags:
+        - Recipes
+      summary: Delete a recipe
+      description: get recipes
+      parameters:
+        - name: id
+          in: path
+          description: ID of recipe to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful
+  /recipes/upload:
+    post:
+      tags:
+        - Recipes
+      summary: Upload an image for a recipe
+      description: get recipes
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+        '400':
+          description: No image provided
+        '500':
+          description: Upload failed
+
+  #Collection paths
+  /collections:
+    get:
+      tags:
+        - Collections
+      summary: Get all collections
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Collection'
+    post:
+      tags:
+        - Collections
+      summary: Create new Collection
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewCollection'
+        '400':
+          description: Invalid body
+  /collections/{collection_id}:
+    get:
+      tags:
+        - Collections
+      summary: Get specific collection
+      parameters:
+        - name: collection_id
+          in: path
+          description: ID of collection to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        '400':
+          description: Invalid body
+        '404':
+          description: Collection not found
+    patch:
+      tags:
+        - Collections
+      summary: ?????
+      parameters:
+        - name: collection_id
+          in: path
+          description: ID of collection to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful
+        '400':
+          description: Invalid Body
+        '404':
+          description: Collection not found
+    delete:
+      tags:
+        - Collections
+      summary: Delete a collection
+      parameters:
+        - name: collection_id
+          in: path
+          description: ID of collection to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful
+  /collections/{collection_id}/recipes/{recipe_id}:
+    post:
+      tags:
+        - Collections
+      summary: Add recipe to collection
+      parameters:
+        - name: collection_id
+          in: path
+          description: ID of collection to add recipe to
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: recipe_id
+          in: path
+          description: ID of recipe to add to collection
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful
+        '400':
+          description: Invalid Body
+        '404':
+          description: Collection not found
+    delete:
+      tags:
+        - Collections
+      summary: Remove recipe from collection
+      parameters:
+        - name: collection_id
+          in: path
+          description: ID of recipe to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: recipe_id
+          in: path
+          description: ID of recipe to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful
+        '400':
+          description: Invalid body
+        '404':
+          description: Collection not found
+  /search:
+    post:
+      tags:
+        - Search
+      summary: Search for recipes
+      requestBody:
+        description: test
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mode:
+                  type: string
+                  example: recipe
+                query:
+                  enum:
+                    - recipe
+                    - ingredient
+                  example: Kuchen
+                tags:
+                  type: array
+                  items:
+                    type: string
+                    example: vegetarian
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+        '400':
+          description: Invalid body
+        '404':
+          description: Not found
+  /tags/available:
+    get:
+      tags:
+        - Tags
+      summary: Get all available tags
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    tag_name:
+                      type: string
+                      example: vegetarian
+    post:
+      tags:
+        - Tags
+      summary: TODO Create new tag
+      responses:
+        '201':
+          description: Created new tag
+          
+  /developer/export:
+    get:
+      tags:
+        - Developer
+      summary: Export everything
+      responses:
+        '200':
+          description: successful
+  /developer/api-documentation:
+    get:
+      tags:
+        - Developer
+      summary: Get this documentation
+      responses:
+        '200':
+          description: successful
+          content:
+            application/yaml:
+              schema:
+                type: object
+                properties:
+                  openapi:
+                    type: number
+                    example: 3.0.3
+                  info:
+                    type: string
+                    example: ...
+# Type definitions
+components:
+  schemas:
+    Recipe:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: Marmorkuchen
+        instructions:
+          type: string
+          example: Eine Kastenform mit Butter und Mehl einreiben. Den Ofen auf 170°C Ober-/Unterhitze vorheizen. Die Eier mit dem Salz steif schlagen und...
+        last_viewed:
+          type: string
+          format: date-time
+          example: 2023-11-05T09:30:40.000Z
+        image_paths:
+          type: array
+          items:
+            type: string
+            example: http://localhost:3000/images/1-Marmorkuchen-0.jpg
+        ingredient_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/IngredientGroup'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        keywords:
+          type: array
+          items:
+            type: string
+            example: Cake
+        #collections:
+    NewRecipe:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Marmorkuchen
+        instructions:
+          type: string
+          example: Eine Kastenform mit Butter und Mehl einreiben. Den Ofen auf 170°C Ober-/Unterhitze vorheizen. Die Eier mit dem Salz steif schlagen und...
+        image_paths:
+          type: array
+          items:
+            type: string
+            example: http://localhost:3000/temp/1-Marmorkuchen-0.jpg
+        ingredient_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/IngredientGroup'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        keywords:
+          type: array
+          items:
+            type: string
+            example: Cake
+    IngredientGroup:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 1
+        name:
+          type: string
+          example: _main_
+        position:
+          type: integer
+          example: 1
+        ingredients:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: 1
+              amount:
+                type: string
+                example: 500 g
+              ingredient_name:
+                type: string
+                example: Mehl
+              position:
+                type: integer
+                example: 1
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 5
+        tag_name:
+          type: string
+          example: snack
+    Collection:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 2
+        name:
+          type: string
+          example: Backen
+        recipes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipe'
+    NewCollection:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1
+        name:
+          type: string
+          example: Backen

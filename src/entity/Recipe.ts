@@ -43,6 +43,9 @@ export class Recipe {
     })
     keywords: Keyword[]
 
-    @ManyToMany(() => Collection, (collection) => collection.recipes)
+    @ManyToMany(() => Collection, (collection) => collection.recipes, {
+        eager: true,
+        cascade: true
+    })
     collections: Collection[]
 }

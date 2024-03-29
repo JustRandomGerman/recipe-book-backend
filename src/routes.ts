@@ -106,5 +106,11 @@ export const Routes = [
         method: "get",
         controller: DeveloperController,
         action: "export"
+    },
+    {
+        path: "/developer/api-documentation",
+        method: "get",
+        controller: DeveloperController,
+        action: "apiDocumentation"
     }
 ];

@@ -39,9 +39,18 @@ export class DeveloperController{
         return;
     }
 
-    async import(request: Request, response: Response, next: NextFunction){
-        
-        response.status(200);
-        return;
+    async apiDocumentation(request: Request, response: Response, next: NextFunction) {
+        fs.readFile('public/recipe_api.yml', 'utf8', (error, data) => {
+            if (error) {
+                // Handle error
+                console.error(error);
+                response.status(500).send('Error reading file');
+                return;
+            }
+            // Send the file contents as response
+            response.set('Content-Type', 'text/yaml')
+            response.send(data);
+            return;
+        });
     }
 }

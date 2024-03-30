@@ -32,7 +32,7 @@ export class RecipeController {
             })
         }).required(),
         tags: Joi.array().items({
-            id: Joi.number(),
+            id: Joi.string(),
             tag_name: Joi.string().required()
         }).required(),
         keywords: Joi.array().items({

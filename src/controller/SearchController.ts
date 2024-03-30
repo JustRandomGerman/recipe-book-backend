@@ -87,11 +87,6 @@ export class SearchController {
         
             return filteredRecipes;
         }
-
-        if (recipes.length === 0) {
-            response.status(404).json({message: "No recipes could be found using your search criteria. Try a different query or remove some filter tags"});
-            return;
-        }
         
         //finish recipe image paths
         recipes.forEach((recipe: Recipe) => {

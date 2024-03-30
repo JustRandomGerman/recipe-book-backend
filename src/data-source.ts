@@ -8,6 +8,7 @@ import { Keyword } from "./entity/Keyword"
 import { ImagePath } from "./entity/ImagePath"
 import { IngredientGroup } from "./entity/IngredientGroup"
 import 'dotenv/config'
+import { AvailableTag } from "./entity/AvailableTag"
 
 export const AppDataSource = new DataSource({
     type: "mysql",
@@ -18,7 +19,7 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_DATABASE,
     synchronize: true,
     logging: false,
-    entities: [Recipe, Collection, IngredientGroup, Ingredient, Tag, Keyword, ImagePath],
+    entities: [Recipe, Collection, IngredientGroup, Ingredient, Tag, Keyword, ImagePath, AvailableTag],
     migrations: [],
     subscribers: [],
 })

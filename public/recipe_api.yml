@@ -338,7 +338,7 @@ paths:
     post:
       tags:
         - Tags
-      summary: TODO Create new tag
+      summary: Create new tag
       responses:
         '201':
           description: Created new tag

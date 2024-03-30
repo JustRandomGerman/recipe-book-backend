@@ -102,6 +102,12 @@ export const Routes = [
         action: "available"
     },
     {
+        path: "/tags/available",
+        method: "post",
+        controller: TagController,
+        action: "new"
+    },
+    {
         path: "/developer/export",
         method: "get",
         controller: DeveloperController,

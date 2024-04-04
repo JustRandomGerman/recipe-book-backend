@@ -36,7 +36,7 @@ export class RecipeController {
             tag_name: Joi.string().required()
         }).required(),
         keywords: Joi.array().items({
-            id: Joi.number(),
+            id: Joi.string(),
             keyword_name: Joi.string().required()
         }).required(),
         collections: Joi.array(),

@@ -7,7 +7,7 @@ import * as Joi from 'joi';
 export class SearchController {
 
     private recipeRepository = AppDataSource.getRepository(Recipe);
-    private baseImagePath = "http://localhost:3000/images/";
+    private baseImagePath = `${process.env.BASE_URL}:${process.env.PORT}/images/`;
 
     private searchSchema = Joi.object({
         query: Joi.string().required(),

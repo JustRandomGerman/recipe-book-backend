@@ -10,8 +10,8 @@ import * as path from 'path';
 export class RecipeController {
 
     private recipeRepository = AppDataSource.getRepository(Recipe);
-    private baseImagePath = "http://localhost:3000/images/";
-    private tempImagePath = "http://localhost:3000/temp/";
+    private baseImagePath = `${process.env.BASE_URL}:${process.env.PORT}/images/`;
+    private tempImagePath = `${process.env.BASE_URL}:${process.env.PORT}/temp/`;
 
     private recipeSchema = Joi.object({
         id: Joi.number(),

@@ -9,7 +9,7 @@ export class CollectionController {
 
     private collectionRepository = AppDataSource.getRepository(Collection);
     private recipeRepository = AppDataSource.getRepository(Recipe);
-    private baseImagePath = "http://localhost:3000/images/";
+    private baseImagePath = `${process.env.BASE_URL}:${process.env.PORT}/images/`;
 
     private collectionSchema = Joi.object({
         name: Joi.string().required()

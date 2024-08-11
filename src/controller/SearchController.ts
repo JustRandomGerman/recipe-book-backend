@@ -39,10 +39,12 @@ export class SearchController {
         //Match everything in the query in double quotes
         const regex = /"(.*?)"/g;
         const matches = query.match(regex) || [];
-      
+
         // Remove the quotation marks from the matches, but really only the first one will be used
         const extractedQuery = matches.map(match => match.replace(/"/g, ''));
 
+        //remove whitespaces from query
+        query = query.trim();
 
         //create sql query
         const queryBuilder = this.recipeRepository
@@ -106,6 +108,8 @@ export class SearchController {
         // Remove the quotation marks from the matches, but really only the first one will be used
         const extractedQuery = matches.map(match => match.replace(/"/g, ''));
         
+        //remove whitespaces from query
+        query = query.trim();
 
         //create sql query
         const queryBuilder = this.recipeRepository
